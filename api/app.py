@@ -1,6 +1,6 @@
 # api/app.py
 """
-FastAPI service for housing price prediction.
+FastAPI service for customer churn prediction.
 Loads the trained model and exposes a /predict endpoint.
 """
 
@@ -13,10 +13,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 # Import shared pipeline components so unpickling works
-from housing_pipeline import (
-    ClusterSimilarity,
-    column_ratio,
-    ratio_name,
+from customer_pipeline import (
     build_preprocessing,
     make_estimator_for_name,
 )
@@ -27,8 +24,8 @@ from housing_pipeline import (
 MODEL_PATH = Path("/app/models/global_best_model_optuna.pkl")
 
 app = FastAPI(
-    title="Housing Price Prediction API",
-    description="FastAPI service for predicting California housing prices",
+    title="Customer Churn Prediction API",
+    description="FastAPI service for predicting whether customer will churn",
     version="1.0.0",
 )
 
@@ -72,15 +69,17 @@ class PredictRequest(BaseModel):
             "example": {
                 "instances": [
                     {
-                        "longitude": -122.23,
-                        "latitude": 37.88,
-                        "housing_median_age": 41.0,
-                        "total_rooms": 880.0,
-                        "total_bedrooms": 129.0,
-                        "population": 322.0,
-                        "households": 126.0,
-                        "median_income": 8.3252,
-                        "ocean_proximity": "NEAR BAY",
+                    "creditScore": 510,
+                    "age": 66,
+                    "tenure": 4,
+                    "balance": 0,
+                    "numofProducts": 1,
+                    "estimatedSalary": 1643.11,
+                    "hasCrCard": 1,
+                    "isActiveMember": 0,
+                    "gender": "Female",
+                    "geography": "Spain",
+                    "isZeroBalance": 0
                     }
                 ]
             }
@@ -94,7 +93,7 @@ class PredictResponse(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "predictions": [452600.0],
+                "predictions": [0],
                 "count": 1,
             }
         }
@@ -106,7 +105,7 @@ class PredictResponse(BaseModel):
 @app.get("/")
 def root():
     return {
-        "name": "Housing Price Prediction API",
+        "name": "Customer Churn Prediction API",
         "version": "1.0.0",
         "endpoints": {
             "health": "/health",
@@ -142,15 +141,17 @@ def predict(request: PredictRequest):
         )
 
     required_columns = [
-        "longitude",
-        "latitude",
-        "housing_median_age",
-        "total_rooms",
-        "total_bedrooms",
-        "population",
-        "households",
-        "median_income",
-        "ocean_proximity",
+        "creditScore",
+        "age",
+        "tenure",
+        "balance",
+        "numofProducts",
+        "estimatedSalary",
+        "hasCrCard",
+        "isActiveMember",
+        "gender",
+        "geography",
+        "isZeroBalance"
     ]
     missing = set(required_columns) - set(X.columns)
     if missing:
@@ -175,7 +176,7 @@ def predict(request: PredictRequest):
 @app.on_event("startup")
 async def startup_event():
     print("\n" + "=" * 80)
-    print("Housing Price Prediction API - Starting Up")
+    print("Customer Churn Prediction API - Starting Up")
     print("=" * 80)
     print(f"Model path: {MODEL_PATH}")
     print(f"Model loaded: {model is not None}")

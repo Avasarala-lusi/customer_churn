@@ -25,15 +25,17 @@ def test_model(model_path):
         
         # Create sample data
         sample_data = pd.DataFrame({
-            'longitude': [-122.23, -118.25, -117.81],
-            'latitude': [37.88, 34.05, 33.68],
-            'housing_median_age': [41.0, 28.0, 15.0],
-            'total_rooms': [880.0, 2000.0, 1500.0],
-            'total_bedrooms': [129.0, 400.0, 300.0],
-            'population': [322.0, 1000.0, 800.0],
-            'households': [126.0, 380.0, 280.0],
-            'median_income': [8.3252, 5.6431, 3.8462],
-            'ocean_proximity': ['NEAR BAY', 'NEAR OCEAN', 'INLAND']
+            "creditScore": [740.0, 530, 789, 630],
+            "age": [54.0, 38, 60, 45],
+            "tenure": [1, 2, 3, 8.0],
+            "balance": [126418, 342311, 564633, 112435],
+            "numofProducts": [1.0, 1, 2, 1],
+            "hasCrCard": [1, 0, 0, 0],
+            "isActiveMember": [0, 0, 0, 0],
+            "estimatedSalary": [134420.0, 89121, 32123, 432],
+            "isZeroBalance": [1, 0, 0, 0],
+            "gender":["Male", "Female", "Female", "Female"],
+            "geography": ["Germany", "Germany", "Germany", "Spain"]
         })
         
         # Predict

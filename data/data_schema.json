@@ -1,69 +1,93 @@
 {
   "numerical": {
-    "longitude": {
-      "min": -124.35,
-      "max": -114.31,
-      "mean": -119.56970445736432,
-      "median": -118.49
+    "creditScore": {
+      "min": 350.0,
+      "max": 850.0,
+      "mean": 650.5288,
+      "median": 652.0
     },
-    "latitude": {
-      "min": 32.54,
-      "max": 41.95,
-      "mean": 35.63186143410853,
-      "median": 34.26
+    "age": {
+      "min": 18.0,
+      "max": 92.0,
+      "mean": 38.9218,
+      "median": 37.0
     },
-    "housing_median_age": {
+    "tenure": {
+      "min": 0.0,
+      "max": 10.0,
+      "mean": 5.0128,
+      "median": 5.0
+    },
+    "balance": {
+      "min": 0.0,
+      "max": 250898.09,
+      "mean": 76485.889288,
+      "median": 97198.54000000001
+    },
+    "numofProducts": {
       "min": 1.0,
-      "max": 52.0,
-      "mean": 28.639486434108527,
-      "median": 29.0
+      "max": 4.0,
+      "mean": 1.5302,
+      "median": 1.0
     },
-    "total_rooms": {
-      "min": 2.0,
-      "max": 39320.0,
-      "mean": 2635.7630813953488,
-      "median": 2127.0
-    },
-    "total_bedrooms": {
-      "min": 1.0,
-      "max": 6445.0,
-      "mean": 537.8705525375618,
-      "median": 435.0
-    },
-    "population": {
-      "min": 3.0,
-      "max": 35682.0,
-      "mean": 1425.4767441860465,
-      "median": 1166.0
-    },
-    "households": {
-      "min": 1.0,
-      "max": 6082.0,
-      "mean": 499.5396802325581,
-      "median": 409.0
-    },
-    "median_income": {
-      "min": 0.4999,
-      "max": 15.0001,
-      "mean": 3.8706710029069766,
-      "median": 3.5347999999999997
+    "estimatedSalary": {
+      "min": 11.58,
+      "max": 199992.48,
+      "mean": 100090.239881,
+      "median": 100193.915
     }
   },
   "categorical": {
-    "ocean_proximity": {
+    "hasCrCard": {
       "unique_values": [
-        "NEAR BAY",
-        "<1H OCEAN",
-        "INLAND",
-        "NEAR OCEAN",
-        "ISLAND"
+        0,
+        1
       ],
       "value_counts": {
-        "<1H OCEAN": 9136,
-        "INLAND": 6551,
-        "NEAR OCEAN": 2658,
-        "NEAR BAY": 2290,
-        "ISLAND": 5
+        "1": 7055,
+        "0": 2945
+      }
+    },
+    "isActiveMember": {
+      "unique_values": [
+        0,
+        1
+      ],
+      "value_counts": {
+        "1": 5151,
+        "0": 4849
+      }
+    },
+    "gender": {
+      "unique_values": [
+        "Female",
+        "Male"
+      ],
+      "value_counts": {
+        "Male": 5457,
+        "Female": 4543
+      }
+    },
+    "geography": {
+      "unique_values": [
+        "Spain",
+        "France",
+        "Germany"
+      ],
+      "value_counts": {
+        "France": 5014,
+        "Germany": 2509,
+        "Spain": 2477
+      }
+    },
+    "isZeroBalance": {
+      "unique_values": [
+        0,
+        1
+      ],
+      "value_counts": {
+        "0": 6383,
+        "1": 3617
       }
     }
   }

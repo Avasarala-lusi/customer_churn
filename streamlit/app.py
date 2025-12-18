@@ -9,7 +9,7 @@ import streamlit as st
 # -----------------------------------------------------------------------------
 # MUST be the first Streamlit command
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="Housing Prediction", page_icon="🏠", layout="centered")
+st.set_page_config(page_title="Customer Churn Prediction", page_icon="🏠", layout="centered")
 
 # -----------------------------------------------------------------------------
 # Config
@@ -39,22 +39,23 @@ categorical_features = schema.get("categorical", {})
 # -----------------------------------------------------------------------------
 # Streamlit UI
 # -----------------------------------------------------------------------------
-st.title("🏠 Housing Prediction App")
+st.title("🏦 Customer Churn Prediction")
 st.write(
-    f"This app sends your inputs to the FastAPI backend at **{API_BASE_URL}** for prediction."
+    f"This app predicts whether a customer will churn based on their profile. "
+    f"The prediction is powered by FastAPI backend at **{API_BASE_URL}**."
 )
 
-st.header("Input Features")
+st.header("Customer Information")
 
 user_input: Dict[str, Any] = {}
 
 # -----------------------------------------------------------------------------
 # Numerical Features
 # -----------------------------------------------------------------------------
-st.subheader("Numerical Features")
+st.subheader("📊 Numerical Features") 
 
 # Decide which features use sliders
-SLIDER_FEATURES = {"longitude", "latitude", "housing_median_age", "median_income"}
+SLIDER_FEATURES = {"creditScore", "age", "tenure", "numofProducts"}
 
 for feature_name, stats in numerical_features.items():
     min_val = float(stats.get("min", 0.0))
@@ -73,13 +74,12 @@ for feature_name, stats in numerical_features.items():
 
     if feature_name in SLIDER_FEATURES:
         # Determine step size based on range and semantics
-        if feature_name in {"housing_median_age"}:
-            step = 1.0  # age in years, int-like
-        elif feature_name in {"median_income"}:
-            step = 0.1  # more granular
+        if feature_name in {"creditScore"}:
+            step = 10.0  # Credit score increments
+        elif feature_name in {"age", "tenure", "numofProducts"}:
+            step = 1.0 # Integer values
         else:
-            # generic heuristic for latitude/longitude
-            step = 0.01
+            step = 0.1
 
         user_input[feature_name] = st.slider(
             label,
@@ -91,16 +91,16 @@ for feature_name, stats in numerical_features.items():
             key=feature_name,
         )
     else:
-        # Fallback to number_input for wide-range features
+        # Use number_input for large range features like balance and salary
         range_val = max_val - min_val
-        if range_val > 10000:
-            step = 10.0
+        if range_val > 100000:
+            step = 1000.0
+        elif range_val > 10000:
+            step = 100.0
         elif range_val > 1000:
-            step = 5.0
+            step = 10.0
         elif range_val > 100:
             step = 1.0
-        elif range_val > 10:
-            step = 0.1
         else:
             step = 0.01
 
@@ -116,7 +116,7 @@ for feature_name, stats in numerical_features.items():
 # -----------------------------------------------------------------------------
 # Categorical Features
 # -----------------------------------------------------------------------------
-st.subheader("Categorical Features")
+st.subheader("👤 Categorical Features")
 
 for feature_name, info in categorical_features.items():
     unique_values = info.get("unique_values", [])
@@ -138,13 +138,48 @@ for feature_name, info in categorical_features.items():
 
     label = feature_name.replace("_", " ").title()
 
-    user_input[feature_name] = st.selectbox(
-        label,
-        options=unique_values,
-        index=default_idx,
-        key=feature_name,
-        help=f"Distribution: {value_counts}",
-    )
+    # Better UI for binary features (0/1)
+    if set(unique_values) == {0, 1} or set(unique_values) == {1, 0}:
+        # Use radio buttons for binary choices
+        if feature_name == "hasCrCard":
+            display_options = ["No Credit Card", "Has Credit Card"]
+            option_values = [0, 1]
+        elif feature_name == "isActiveMember":
+            display_options = ["Inactive", "Active Member"]
+            option_values = [0, 1]
+        elif feature_name == "isZeroBalance":
+            display_options = ["Has Balance", "Zero Balance"]
+            option_values = [0, 1]
+        else:
+            display_options = ["No", "Yes"]
+            option_values = [0, 1]
+
+        # Find the default index based on the default_value
+        try:
+            default_radio_idx = option_values.index(default_value)
+        except (ValueError, TypeError):
+            default_radio_idx = 0
+        
+        selected = st.radio(
+            label,
+            options=display_options,
+            index=default_radio_idx,
+            horizontal=True,
+            key=feature_name,
+            help=f"Distribution: {value_counts}",
+        )
+        # Map selection back to numeric value
+        selected_idx = display_options.index(selected)
+        user_input[feature_name] = option_values[selected_idx]
+    else:
+        # Use selectbox for multi-value categorical features
+        user_input[feature_name] = st.selectbox(
+            label,
+            options=unique_values,
+            index=default_idx,
+            key=feature_name,
+            help=f"Distribution: {value_counts}",
+        )
 
 st.markdown("---")
 
@@ -170,19 +205,38 @@ if st.button("🔮 Predict", type="primary"):
                     st.warning("⚠️ No predictions returned from API.")
                 else:
                     pred = preds[0]
-                    st.success("✅ Prediction successful!")
+                    st.success("✅ Prediction completed!")
 
                     st.subheader("Prediction Result")
 
-                    # Display prediction with nice formatting
-                    if isinstance(pred, (int, float)):
-                        st.metric(label="Predicted Value", value=f"{pred:,.2f}")
+                    # Display churn prediction with nice formatting
+                    if pred == 1:
+                        st.error("⚠️ **HIGH RISK**: Customer is likely to churn")
+                        st.markdown(
+                            "**Recommendation:** Consider retention strategies such as "
+                            "personalized offers, loyalty programs, or proactive customer support."
+                        )
                     else:
-                        st.metric(label="Predicted Class", value=str(pred))
-
-                    # Show input summary in expander
-                    with st.expander("📋 View Input Summary"):
-                        st.json(user_input)
+                        st.success("✅ **LOW RISK**: Customer is likely to stay")
+                        st.markdown(
+                            "**Recommendation:** Continue providing excellent service to maintain "
+                            "customer satisfaction and loyalty."
+                        )
+                     # Show input summary in expander
+                    with st.expander("📋 View Customer Profile"):
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("**Numerical Features**")
+                            for k, v in user_input.items():
+                                if k in numerical_features:
+                                    st.write(f"- **{k}**: {v:,.2f}")
+                        
+                        with col2:
+                            st.markdown("**Categorical Features**")
+                            for k, v in user_input.items():
+                                if k in categorical_features:
+                                    st.write(f"- **{k}**: {v}")
 
 st.markdown("---")
 st.caption(
